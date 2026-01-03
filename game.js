@@ -19,7 +19,7 @@ let moves = 0;
 let clearedCount = 0;
 let score = 0;
 let gameOver = false;
-
+  
 let lastMoveDest = null;
 let latestClearingCells = [];
 let isAnimating = false; // 動畫進行中時，忽略操作
@@ -51,6 +51,7 @@ function initGame() {
   selectedCell = null;
   moves = 0;
   clearedCount = 0;
+  //score = 0;
   score = 0;
   gameOver = false;
   lastMoveDest = null;
@@ -64,8 +65,7 @@ function initGame() {
   updateStats();
   setMessage("開始遊戲");
 
-  //randomAddColored(INITIAL_COLORED);
-  initAddColored(12);
+  randomAddColored(INITIAL_COLORED);
   computeGroupSizes(false);
   renderBoard();
 }
@@ -80,10 +80,11 @@ function updateStats() {
 
 // 每當分數更新時，根據分數計算等級 & 消除門檻
 function updateDifficultyAndUI() {
-  // 🔧 測試方便：每 100 分升一級
-  // 之後你要正式版，把 100 改回 1000 即可
-  const newLevel = 1 + Math.floor(score / 1000);
-  level = newLevel;
+
+  if( minGroupToClear < 10 ) {
+    const newLevel = 1 + Math.floor(score / 1000);
+    level = newLevel;
+  } 
 
   // 基礎門檻 6，每升一級 +1 → Lv1:6, Lv2:7, Lv3:8...
   minGroupToClear = 6 + (level - 1);
@@ -232,7 +233,7 @@ function performMoveWithAnimation(from, to, path) {
         });
       } else {
         // 移動後沒有消除 → 新增 3 個顏色
-        //randomAddColored(NEW_CELLS_PER_TURN);
+        randomAddColored(NEW_CELLS_PER_TURN);
         computeGroupSizes(false);
 
         if (latestClearingCells.length > 0) {
@@ -340,7 +341,7 @@ function computeGroupSizes(clearMode) {
       const size = group.length;
       group.forEach(pos => board[pos.r][pos.c].groupSize = size);
 
-      if (size === minGroupToClear) {
+      if (size >= minGroupToClear) {
         toClear.push(...group);
         if (clearMode) {
           clearedAny = true;
@@ -396,30 +397,6 @@ function randomAddColored(count) {
     const { r, c } = empties[i];
     board[r][c].color = COLORS[Math.floor(Math.random() * COLORS.length)];
     latestSpawnCells.push({ r, c });  // ✅ 把座標記起來
-  }
-}
-function initAddColored(mul) {
-  const empties = [];
-  for (let r = 0; r < ROWS; r++)
-    for (let c = 0; c < COLS; c++)
-      if (!board[r][c].color) empties.push({ r, c });
-
-  if (empties.length === 0) return;
-
-  shuffle(empties);
-  //const n = Math.min(count, empties.length);
-
-  // ✅ 每次新增前，重置「這一回合新增」清單
-  latestSpawnCells = [];
-
-  n = 0;
-  for (let i = 0; i < mul ; i++) {
-    for (let j = 0; j < COLORS.length ; j++) {
-      const { r, c } = empties[n];
-      board[r][c].color = COLORS[j];
-      //latestSpawnCells.push({ r, c });  // ✅ 把座標記起來
-      n++;
-    }
   }
 }
 
