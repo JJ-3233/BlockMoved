@@ -1,7 +1,7 @@
 // ===== 遊戲設定 =====
-const ROWS = 9;
-const COLS = 9;
-const INITIAL_COLORED = 18;
+const ROWS = 7;
+const COLS = 7;
+const INITIAL_COLORED = 10;
 const NEW_CELLS_PER_TURN = 3;
 
 // 動態消除門檻與等級
